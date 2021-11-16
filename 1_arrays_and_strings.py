@@ -296,3 +296,13 @@ def gen_random_matrix(n):
 # 9. String Rotation: Assume you have a method isSubstring which checks if one word is a substring
 # of another. Given two strings, 51 and 52, write code to check if 52 is a rotation of 51 using only one
 # call to isSubstring (e.g., "waterbottle" is a rotation of "erbottlewat").
+
+
+def string_rot_substring(s1: str, s2: str) -> bool:
+    if len(s1) != len(s2):
+        return False
+
+    return s1 in s2 + s2
+
+
+# print(string_rot_substring("waterbottle", "erbottlewat"))
