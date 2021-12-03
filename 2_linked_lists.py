@@ -171,8 +171,8 @@ def partition_deque(self, x: int) -> collections.deque:
 
 def sum_llists(self, ll_1: LinkedList, ll_2: LinkedList) -> LinkedList:
     """Sums two numbers where the digits are stored in a linked list in reverse
-     order, and returns the result in the same format.
-     """
+    order, and returns the result in the same format.
+    """
     from itertools import zip_longest
 
     pow_, sum_ = 0, 0
@@ -191,8 +191,8 @@ def sum_llists(self, ll_1: LinkedList, ll_2: LinkedList) -> LinkedList:
 
 def sum_lists(self, ll_1: LinkedList, ll_2: LinkedList) -> LinkedList:
     """Sums two numbers where the digits are stored in a linked list and returns
-     the result in the same format.
-     """
+    the result in the same format.
+    """
     from itertools import zip_longest
 
     step, sum_ = 0, 0
@@ -259,8 +259,12 @@ def is_palindrome_2(ll: LinkedList) -> bool:
 # node of the first linked list is the exact same node (by reference) as the jth node of the second
 # linked list, then they are intersecting.
 
+
 def intersection_hashmap(ll_1: LinkedList, ll_2: LinkedList) -> Optional[LlNode]:
-    """TODO"""
+    """Determines if two linked lists intersect and if so returns the intersecting node.
+
+    Takes up O(k) space where k is the length of the longest list.
+    """
     ll_1_set = set()
     ll_1_node = ll_1.head
     while ll_1_node is not None:
@@ -275,7 +279,10 @@ def intersection_hashmap(ll_1: LinkedList, ll_2: LinkedList) -> Optional[LlNode]
 
 
 def intersection_o1_space(ll_1: LinkedList, ll_2: LinkedList) -> Optional[LlNode]:
-    """TODO"""
+    """Determines if two linked lists intersect and if so returns the intersecting node.
+
+    Takes up O(1) additional space.
+    """
     len_diff = len(ll_1) - len(ll_2)
     if len_diff >= 0:
         bigger, smaller = ll_1.head, ll_2.head
@@ -291,10 +298,43 @@ def intersection_o1_space(ll_1: LinkedList, ll_2: LinkedList) -> Optional[LlNode
         smaller, bigger = smaller.next, bigger.next
 
 
+# ----
+# 8. Loop Detection: Given a circular linked list, implement an algorithm that returns
+#  the node at the beginning of the loop.
+# DEFINITION
+# Circular linked list: A (corrupt) linked list in which a node's next pointer
+#  points to an earlier node, so as to make a loop in the linked list.
+# EXAMPLE
+# Input: A -> B -> C -> D -> E -> C [the same C as earlier]
+# Output: C
 
 
+def is_loop(self) -> Optional[LlNode]:
+    slow, fast = self.head, self.head
+    count = 0
+    while fast is not None:
+        count += 1
+        slow = slow.next
+        try:
+            fast = fast.next.next  # Jump 2 ahead.
+        except AttributeError:
+            fast = None
+        if fast is slow:
+            return fast
 
 
+def find_loop_start(self, collision_node: LlNode) -> LlNode:
+    current = self.head
+    c_node = collision_node
+
+    while current is not c_node:
+        current = current.next
+        c_node = c_node.next
+
+    return current
 
 
-
+# collision_node = some_list.is_loop()
+# if collision_node:
+#     loop_start = some_list.find_loop_start(collision_node)
+#     print(loop_start)
