@@ -13,6 +13,7 @@ class TripleStackList:
     def __init__(self) -> None:
         """Inits 3 empty stacks."""
         self._data = [None, None, None]
+        self._data_top = [0, 1, 2]
 
     def _extend(self) -> None:
         """Extends the internal data structure by one slot per stack."""
@@ -36,11 +37,12 @@ class TripleStackList:
             stack_id: The ID of the stack to push to (0, 1, or 2).
             item (): The data to be added to the stack.
         """
-        while self._data[stack_id] is not None:
-            stack_id += 3
-            if stack_id > len(self._data) - 1:
-                self._extend()
-        self._data[stack_id] = item
+        if not self.is_empty(stack_id):
+            self._data_top[stack_id] += 3
+        top_idx = self._data_top[stack_id]
+        if top_idx > len(self._data) - 1:
+            self._extend()
+        self._data[top_idx] = item
 
     def pop(self, stack_id: int) -> Any:
         """Pops the most recently added item from the stack ``stack_id``.
@@ -54,13 +56,14 @@ class TripleStackList:
         Raises:
             IndexError: If an attempt to pop from an empty stack is made.
         """
-        key = stack_id
-        while self._data[key - 3] is None:
-            key -= 3
-            if abs(key) > len(self._data):
-                raise IndexError(f"Popped empty stack. ID: {stack_id} is empty.")
-        res = self._data[-key - 3]
-        self._data[key - 3] = None
+        if self.is_empty(stack_id):
+            raise IndexError(f"Popped empty stack. ID: {stack_id} is empty.")
+
+        top_idx = self._data_top[stack_id]
+        res = self._data[top_idx]
+        self._data[top_idx] = None
+        if not self.is_empty(stack_id):
+            self._data_top[stack_id] -= 3
         self._clean()
 
         return res
@@ -73,4 +76,4 @@ class TripleStackList:
         return str(self._data)
 
 
-trip_stack = TripleStackList()
+# trip_stack = TripleStackList()
