@@ -1,6 +1,7 @@
-# 1. Three in One: Describe how you could use a single array to implement three stacks.
-
 from typing import Any
+
+
+# 1. Three in One: Describe how you could use a single array to implement three stacks.
 
 
 class TripleStackList:
@@ -8,6 +9,10 @@ class TripleStackList:
 
     Methods for pushing, popping and checking if a stack is empty are provided.
      Methods for each stack can be accessed using its ID (0, 1 or 2).
+
+    Attributes:
+        _data: The stored data for all three stacks.
+        _data_top: A record of the top index for each individual stack.
     """
 
     def __init__(self) -> None:
@@ -77,3 +82,151 @@ class TripleStackList:
 
 
 # trip_stack = TripleStackList()
+
+
+# ----
+# 2. Stack Min: How would you design a stack which, in addition to push and pop, has a function min
+# which returns the minimum element? Push, pop and min should all operate in 0(1) time.
+
+
+class StackMin:
+    """A stack data structure with a min function.
+
+    Uses lists for internal representation of the stack. In addition to push,
+     pop and min are provided with O(1) time complexity.
+
+    Attributes:
+        _data: The data stored within the stack.
+        _mins: The minimum value of the stack at each point a new minimum is
+            found.
+    """
+
+    def __init__(self) -> None:
+        """Initialises the internal stack data and list of minimums at each stack
+        state.
+        """
+        self._data = []
+        self._mins = []
+
+    def push(self, item: Any):
+        """Pushes the provided ``item`` onto the stack and updates the minimum
+        if necessary.
+
+        Args:
+            item: The item to push onto the stack.
+        """
+        if not self._mins:
+            self._mins.append(item)
+        elif item <= self._mins[-1]:
+            self._mins.append(item)
+        self._data.append(item)
+
+    def pop(self) -> Any:
+        """Pops an item from the top of the stack and updates the minimum if
+        necessary.
+        """
+        item = self._data.pop()
+        if item == self._mins[-1]:
+            self._mins.pop()
+
+        return item
+
+    def min(self) -> int:
+        """Returns the minimum item in the stack."""
+        return self._mins[-1]
+
+    def __str__(self) -> str:
+        return str(self._data)
+
+
+# import random
+# min_stack = StackMin()
+# [min_stack.push(random.randint(0, 30)) for _ in range(11)]
+#
+# print(min_stack)
+# print(min_stack._mins)
+#
+# for _ in range(len(min_stack._data)):
+#     my_min = min_stack.min()
+#     py_min = min(min_stack._data)
+#     print(my_min, "=", py_min)
+#     assert my_min == py_min
+#     min_stack.pop()
+
+
+# ----
+# 3. Stack of Plates: Imagine a (literal) stack of plates. If the stack gets too high, it might topple.
+# Therefore, in real life, we would likely start a new stack when the previous stack exceeds some
+# threshold. Implement a data structure SetOfStacks that mimics this. SetOfStacks should be
+# composed of several stacks and should create a new stack once the previous one exceeds capacity.
+# SetOfStacks.push() and SetOfStacks.pop() should behave identically to a single stack
+# (that is, pop() should return the same values as it would if there were just a single stack).
+# FOLLOW UP
+# Implement a function popAt (int index) which performs a pop operation on a specific sub-stack.
+
+
+class SetOfStacks:
+    """A stack data structure represented internally by sets of stacks of
+    max length `max_stack_size`.
+
+    Args:
+        max_stack_size: The max length for each individual inner stack.
+
+    Attributes:
+        stack_size: The maximum inner stack size.
+        stacks: The stack data represented as lists of lists (used as stacks).
+    """
+
+    def __init__(self, max_stack_size: int = 10) -> None:
+        self.stack_size = max_stack_size
+        self.stacks = [[]]
+
+    def push(self, item: Any) -> None:
+        """Pushes the provided ``item`` on the top of the current stack.
+
+        Appends a new stack onto self.stacks if the current stack is full.
+        """
+        if len(self.stacks[-1]) == self.stack_size:
+            self.stacks.append([item])
+        else:
+            self.stacks[-1].append(item)
+
+    def pop(self) -> Any:
+        """Pops the top item from the stack.
+
+        Cleans up any empty stacks before popping, unless only one inner stack
+         remains.
+        """
+        while not (self.stacks[-1] or len(self.stacks) == 1):
+            self.stacks.pop()
+
+        return self.stacks[-1].pop()
+
+    def pop_at(self, idx: int) -> Any:
+        """Pops an item from the inner stack at the provided index ``idx``.
+
+        Should this lead to an empty inner stack, it will be cleaned/removed when
+         reached by `self.pop()`.
+
+        Attributes:
+            idx: The index of the inner stack to pop from.
+        """
+        return self.stacks[idx].pop()
+
+    def __str__(self) -> str:
+        return str(self.stacks)
+
+
+# s = SetOfStacks()
+#
+# for i in range(25):
+#     s.push(i)
+# print(s)
+#
+# for i in range(20):
+#     s.pop()
+# print(s)
+
+
+# ----
+# 4.
