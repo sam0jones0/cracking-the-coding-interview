@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, List
 
 
 # 1. Three in One: Describe how you could use a single array to implement three stacks.
@@ -14,6 +14,9 @@ class TripleStackList:
         _data: The stored data for all three stacks.
         _data_top: A record of the top index for each individual stack.
     """
+
+    _data: List[Any]
+    _data_top: List[int]
 
     def __init__(self) -> None:
         """Inits 3 empty stacks."""
@@ -101,6 +104,9 @@ class StackMin:
             found.
     """
 
+    _data: List[Any]
+    _mins: List[Any]
+
     def __init__(self) -> None:
         """Initialises the internal stack data and list of minimums at each stack
         state.
@@ -177,6 +183,8 @@ class SetOfStacks:
         stacks: The stack data represented as lists of lists (used as stacks).
     """
 
+    stacks: List[List[Any]]
+
     def __init__(self, max_stack_size: int = 10) -> None:
         self.stack_size = max_stack_size
         self.stacks = [[]]
@@ -232,39 +240,114 @@ class SetOfStacks:
 # 4. Queue via Stacks: Implement a MyQueue class which implements a queue using two stacks.
 
 
-class MyQueue:
+class MyQueue1:
+    """A Queue implemented using two stacks.
+
+    Attributes:
+        _stack_1: A stack in old -> new order to which new items are added.
+        _stack_2: A stack to hold the reversed _stack_1. Items in new -> old order
+             from which items are popped.
+        _enqueued_last: A toggle flag denoting if an item was enqueued more recently
+             than dequeued.
+    """
+
+    _stack_1: List[Any]
+    _stack_2: List[Any]
+    _enqueued_last: bool
+
     def __init__(self):
         self._stack_1 = []
         self._stack_2 = []
         self._enqueued_last = False
 
-    def enqueue(self, item):
+    def enqueue(self, item: Any) -> None:
+        """Enqueues the provided ``item`` to the back of the queue.
+
+        If an item was dequeued last, the items must be reversed first.
+
+        Args:
+            item: The item to enqueue.
+        """
         if not self._enqueued_last:
             self._reverse(self._stack_2, self._stack_1)
             self._enqueued_last = True
         self._stack_1.append(item)
 
-    def dequeue(self):
+    def dequeue(self) -> Any:
+        """Dequeues and returns an item from the front of the queue.
+
+        If an item was enqueued last, the items must be reversed first.
+        """
         if self._enqueued_last:
             self._reverse(self._stack_1, self._stack_2)
 
         return self._stack_2.pop()
 
-    def _reverse(self, from_, to):
-        """TODO"""
-        # NOTE: After reading solution; reverse in order to enqueue can be avoided
-        #  by only populating the 'oldest' stack_2 when dequeuing.
+    def _reverse(self, from_: list, to: list) -> None:
+        """Reverses the items in internal stacks so items can be added to the correct
+         end of the queue.
+
+        Args:
+            from_: The stack which to be reversed.
+            to: The stack to place the reversed items.
+        """
+        # FIXME: After reading solution; reverse in order to enqueue can be avoided
+        #  by only populating the 'oldest' stack_2 when dequeuing (see MyQueue2 below).
         if self._stack_1 or self._stack_2:
             to.clear()
             while from_:
                 to.append(from_.pop())
             self._enqueued_last = True if self._stack_1 else False
 
-    def __str__(self):
+    def __str__(self) -> str:
         if self._enqueued_last:
             self._reverse(self._stack_1, self._stack_2)
 
         return str(self._stack_2)
+
+
+class MyQueue2:
+    """A Queue implemented using two stacks.
+
+    Attributes:
+        _new_top: A stack in old -> new order to which new items are added.
+        _old_top: A stack to hold the reversed _new_top. Items are in new -> old
+             order from which items are popped.
+    """
+
+    _new_top: List[Any]
+    _old_top: List[Any]
+
+    def __init__(self):
+        self._new_top = []
+        self._old_top = []
+
+    def enqueue(self, item: Any) -> None:
+        """Enqueues the provided ``item`` to the back of the queue.
+
+        Args:
+            item: The item to enqueue.
+        """
+        self._new_top.append(item)
+
+    def dequeue(self) -> Any:
+        """Dequeues and returns an item from the front of the queue.
+
+        If _old_top if empty, items must be popped from _new_top and pushed to
+         _old_top (in effect reversing _new_top).
+        """
+        if not self._old_top:
+            self._reverse()
+
+        return self._old_top.pop()
+
+    def _reverse(self) -> None:
+        """Pops items from _new_top onto _old_top (in effect reversing _new_top)."""
+        while self._new_top:
+            self._old_top.append(self._new_top.pop())
+
+    def __str__(self) -> str:
+        return str(list(reversed(self._new_top)) + self._old_top)
 
 
 # q = MyQueue()
@@ -274,6 +357,10 @@ class MyQueue:
 # print(q)
 #
 # for _ in range(6):
+#     q.dequeue()
+# for _ in range(11, 14):
+#     q.enqueue(_)
+# for _ in range(2):
 #     q.dequeue()
 # print(q)
 
