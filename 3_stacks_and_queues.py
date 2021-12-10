@@ -229,4 +229,54 @@ class SetOfStacks:
 
 
 # ----
-# 4.
+# 4. Queue via Stacks: Implement a MyQueue class which implements a queue using two stacks.
+
+
+class MyQueue:
+    def __init__(self):
+        self._stack_1 = []
+        self._stack_2 = []
+        self._enqueued_last = False
+
+    def enqueue(self, item):
+        if not self._enqueued_last:
+            self._reverse(self._stack_2, self._stack_1)
+            self._enqueued_last = True
+        self._stack_1.append(item)
+
+    def dequeue(self):
+        if self._enqueued_last:
+            self._reverse(self._stack_1, self._stack_2)
+
+        return self._stack_2.pop()
+
+    def _reverse(self, from_, to):
+        """TODO"""
+        # NOTE: After reading solution; reverse in order to enqueue can be avoided
+        #  by only populating the 'oldest' stack_2 when dequeuing.
+        if self._stack_1 or self._stack_2:
+            to.clear()
+            while from_:
+                to.append(from_.pop())
+            self._enqueued_last = True if self._stack_1 else False
+
+    def __str__(self):
+        if self._enqueued_last:
+            self._reverse(self._stack_1, self._stack_2)
+
+        return str(self._stack_2)
+
+
+# q = MyQueue()
+#
+# for i in range(11):
+#     q.enqueue(i)
+# print(q)
+#
+# for _ in range(6):
+#     q.dequeue()
+# print(q)
+
+
+# ----
+# 5.
