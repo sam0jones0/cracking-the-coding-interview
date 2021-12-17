@@ -1,4 +1,4 @@
-from typing import Any, List
+from typing import Any, List, Union, Type
 
 
 # 1. Three in One: Describe how you could use a single array to implement three stacks.
@@ -366,4 +366,190 @@ class MyQueue2:
 
 
 # ----
-# 5.
+# 5. Sort Stack: Write a program to sort a stack such that the smallest items are on the top. You can use
+# an additional temporary stack, but you may not copy the elements into any other data structure
+# (such as an array). The stack supports the following operations: push, pop, peek, and isEmpty.
+
+import operator
+
+
+def sort_stack(stack: list, reverse: bool = False) -> list:
+    """Sorts ``stack`` so the smallest items are on top only using an additional
+     temporary stack.
+
+     Recursive calls are made on each partially sorted stack until no further
+      swaps are made.
+
+    Args:
+        stack: The stack to sort.
+        reverse: Flag tracking whether the stack is reversed or in its original
+             order on each sort pass.
+    """
+    comp = operator.lt if reverse else operator.gt
+    temp_stack = []
+    made_swaps = False
+
+    current = stack.pop()
+    while stack:
+        if comp(current, stack[-1]):
+            temp_stack.append(stack.pop())
+            made_swaps = True
+        else:
+            temp_stack.append(current)
+            current = stack.pop()
+    temp_stack.append(current)
+
+    if made_swaps or not reverse:
+        stack = sort_stack(temp_stack, not reverse)
+    else:
+        return temp_stack
+
+    return stack
+
+
+def sort_stack_2(stack: list) -> list:
+    """Sorts ``stack`` so the smallest items are on top only using an additional
+      temporary stack.
+
+     Marginally faster than `sort_stack` as in certain conditions the whole stack
+      does not need to be traversed.
+
+    Args:
+        stack: The stack to sort.
+    """
+    temp_stack = []
+    while stack:
+        current = stack.pop()
+        while temp_stack and current < temp_stack[-1]:
+            stack.append(temp_stack.pop())
+        temp_stack.append(current)
+    while temp_stack:
+        stack.append(temp_stack.pop())
+
+    return stack
+
+
+# s = [6, 1, 7, 2, 9, 3, 5, 4, 8, 10]
+#
+# print(sort_stack_2(s))
+
+# n              sort_stack   sort_stack_2
+# 100               0.00065        0.00086
+# 200               0.00252        0.00227
+# 300               0.00534        0.00509
+# 400               0.00856        0.00851
+# 500               0.01293        0.01395
+# 600               0.02039        0.01940
+# 700               0.02504        0.02565
+# 800               0.03237        0.03233
+# 900               0.04062        0.04062
+# 1000              0.05031        0.05258
+
+
+# ----
+# 6. Animal Shelter: An animal shelter, which holds only dogs and cats, operates on a strictly "first in, first
+# out" basis. People must adopt either the "oldest" (based on arrival time) of all animals at the shelter,
+# or they can select whether they would prefer a dog or a cat (and will receive the oldest animal of
+# that type). They cannot select which specific animal they would like. Create the data structures to
+# maintain this system and implement operations such as enqueue, dequeueAny, dequeueDog,
+# and dequeueCat. You may use the built-in Linked List data structure.
+
+from dataclasses import dataclass
+from typing import Optional, Union
+
+
+@dataclass
+class Animal:
+    num: int = None
+
+
+@dataclass
+class Cat(Animal):
+    pass
+
+
+@dataclass
+class Dog(Animal):
+    pass
+
+
+class AnimalShelter:
+    """A data structure representing an animal shelter that only accepts dogs
+    and cats. Animals must be adopted on a FIFO basis, although a choice between
+    dog or cat can be made.
+
+    Attributes:
+        cats: A linked list containing all cats currently in the shelter.
+        dogs: A linked list containing all dogs currently in the shelter.
+        order_in: An int representing the order animals are admitted.
+        allowed_animals: A list of Types of animals allowed at the shelter.
+    """
+
+    cats: LinkedList
+    dogs: LinkedList
+    order_in: int
+    allowed_animals: List[Type[Union[Cat, Dog]]]
+
+    def __init__(self) -> None:
+        self.cats = LinkedList()
+        self.dogs = LinkedList()
+        self.order_in = 0
+        self.allowed_animals = [Cat, Dog]
+
+    def enqueue(self, animal: Animal) -> None:
+        """Adds an animal to the shelter.
+
+        Args:
+            animal: The cat or dog to admit to the shelter.
+        """
+        if type(animal) not in self.allowed_animals:
+            raise TypeError(self.gen_accepted_animals_err())
+        animal.num = self.order_in
+        if isinstance(animal, Cat):
+            self.cats.append(animal)
+        elif isinstance(animal, Dog):
+            self.dogs.append(animal)
+        self.order_in += 1
+
+    def dequeue_any(self) -> Optional[Union[Cat, Dog]]:
+        """Dequeues either a dog or cat from the shelter, whichever animal has
+        been there the longest.
+        """
+        dog = self.dogs.head.data
+        cat = self.cats.head.data
+        if dog is None and cat is None:
+            animal = None
+        elif cat is None:
+            animal = self.dequeue_dog()
+        elif dog is None:
+            animal = self.dequeue_cat()
+        elif dog.num < cat.num:
+            animal = self.dequeue_dog()
+        else:
+            animal = self.dequeue_cat()
+
+        return animal
+
+    def dequeue_cat(self) -> Optional[Cat]:
+        """Dequeues the cat which has been at the shelter the longest."""
+        if not self.cats.is_empty():
+            return self.cats.pop(0)
+
+    def dequeue_dog(self) -> Optional[Dog]:
+        """Dequeues the dog which has been at the shelter the longest."""
+        if not self.dogs.is_empty():
+            return self.dogs.pop(0)
+
+    def gen_accepted_animals_err(self) -> str:
+        """Generates an error message clarifying which animals are accepted at
+        the shelter.
+        """
+        if len(self.allowed_animals) > 1:
+            err = f"""Only {"'s, ".join([type(animal).__name__ for animal in self.allowed_animals[:-1]])}"""
+            err += f"""'s and {type(self.allowed_animals[-1]).__name__}'s are accepted at this shelter."""
+        elif len(self.allowed_animals) == 1:
+            err = f"Only {type(self.allowed_animals[0]).__name}'s are accepted at this shelter."
+        else:
+            err = "Shelter currently can't accept any animals."
+
+        return err
