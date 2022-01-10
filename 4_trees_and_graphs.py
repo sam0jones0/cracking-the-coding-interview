@@ -116,7 +116,7 @@ class ShortestRouteDirectedGraph:
             return vertex
 
     def _enqueue_neighbours(
-        self, vertex: Vertex, queue: deque, disc_time: int, colour: str
+            self, vertex: Vertex, queue: deque, disc_time: int, colour: str
     ) -> None:
         """Enqueues all neighbours of ``vertex`` to the end of the provided BFS
          ``queue``. Discovery time (round of BFS) and colour (particular BFS
@@ -150,7 +150,6 @@ class ShortestRouteDirectedGraph:
 
         return reversed_graph
 
-
 # g = Graph()
 # for i in range(1, 11):
 #     g.add_vertex(i)
@@ -171,3 +170,67 @@ class ShortestRouteDirectedGraph:
 # route = s.route(g.get_vertex(1), g.get_vertex(10))
 # print(route)
 # print(list(map(lambda x: x.key, route)))  # [1, 2, 3, 5, 6, 9, 10]
+
+
+# ----
+# 2. Minimal Tree: Given a sorted (increasing order) array with unique integer elements,
+# write an algorithm to create a binary search tree with minimal height.
+
+from BinarySearchTree import BinarySearchTree, TreeNode
+
+
+def build_min_bst(lst: list) -> BinarySearchTree:
+    """TODO"""
+    mid = lst[(len(lst) // 2)]
+    bst = BinarySearchTree()
+    # bst.root = _build_min_bst_helper(lst[:mid], lst[mid + 1 :], mid)
+    bst.root = _build_min_bst_helper(lst, mid)
+
+    return bst
+
+
+def _build_min_bst_helper(lst, mid):
+    if mid == 0:
+        return TreeNode(lst[0])
+    elif mid == len(lst) - 1:
+        return TreeNode(lst[len(lst - 1)])
+
+    new_node = TreeNode(mid)
+    new_node.left_child = _build_min_bst_helper(lst, mid // 2)
+    new_node.right_child = _build_min_bst_helper(lst, mid + ((len(lst) - mid) // 2))
+
+    return new_node
+
+
+# def _build_min_bst_helper(left, right, mid):
+#     if mid:
+#         new_node = TreeNode(mid)
+#         l_mid = left[len(left) // 2]
+#         r_mid = right[len(right) // 2]
+#         new_node.left_child = _build_min_bst_helper(
+#             left[:l_mid], left[l_mid + 1:], l_mid
+#         )
+#         new_node.right_child = _build_min_bst_helper(
+#             right[:r_mid], right[r_mid + 1:], r_mid
+#         )
+#
+#         return new_node
+
+
+# def _build_min_bst_helper(lst: list, node: TreeNode):
+#     mid = lst[(len(lst) // 2)]
+#
+#     if mid is not None:
+#         left = lst[:mid]
+#         right = lst[mid + 1:]
+#         node.left_child = _build_min_bst_helper(left, TreeNode)
+#         node.right_child = TreeNode()
+#         return mid
+
+a = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+b = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+c = [0]
+
+build_min_bst(a)
+build_min_bst(b)
+build_min_bst(c)
