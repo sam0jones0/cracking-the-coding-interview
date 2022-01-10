@@ -2,33 +2,32 @@
 # whether there is a route between two nodes.
 
 import copy
-from typing import List, Optional
+from collections import deque
+from typing import Optional
 
 from AdjacencyListGraph import Graph, Vertex
 
-from collections import deque
-
-# 1. Route Between Nodes: Given a directed graph, design an algorithm to find out
-# whether there is a route between two nodes.
-
 
 class ShortestRouteDirectedGraph:
-    """# Without returning shortest route: 2 BFS with one starting at ``from_`` and the other
-    #  starting at ``to`` on a transposed graph; return True if either ever encounter a
-    #  "visited" vertex.
-    # With returning route: Store discovery time (i.e. How many edges traversed to reach
-    #  that vertex) of each node and when (if) the two BFS collide have them go past each
-    #  other only visiting nodes if the discovery time is lower. The reversed BFS can go
-    #  first, retracing steps to the beginning. Followed by the 'normal ordered' BFS
-    #  tracing steps from collision -> end.
+    """Performs a bidirectional breadth first search on a graph to discover if
+    there is a route between any two vertices and if so, what is the shortest
+    route between them.
 
-    # Visit: Set colour black, set discovery time and recursive DFS.
-    # Visit from_ on g, visit to on rev_g
-    # if encounter a black node we have found the midpoint of path and stop DFS, else return None.
-    # Store mid point in linked list (ll).
-    # continue g traverse only visiting lowest discovery time node, appending each to ll.
-    # continue rev_g traverse only v low disc time, inserting at ll[0].
-    # return ll as optimal path from -> to, else None.
+    Two copies are made of the provided graph, one with the edge's directions
+     reversed. A BFS is performed starting at the `from_` and `to` vertices on
+     the forward and reversed graphs respectively. The discovery of a node by a
+     particular BFS is stored in the `vertex.colour` attribute (e.g. "red" or
+     "black") which is initialised to "white", i.e. undiscovered. The discovery
+     time of each vertex is stored in `vertex.disc`. Once a collision vertex is
+     discovered a route has been found and the shortest route can be calculated.
+
+    Attributes:
+        _for_graph: A deepcopy of the provided ``graph``.
+        _rev_graph: A deepcopy of the provided ``graph`` with the direction of
+            all edges reversed.
+
+    Args:
+        graph: The directed `Graph` to search.
     """
 
     _for_graph: Optional[Graph]
@@ -40,7 +39,15 @@ class ShortestRouteDirectedGraph:
         self._rev_graph = None
 
     def route(self, from_: Vertex, to: Vertex) -> Optional[deque]:
-        """TODO"""
+        """Builds the optimal route between the vertices ``from_`` and ``to.
+
+        Args:
+            from_: The vertex at the start of the route.
+            to: The vertex at the end of the route.
+
+        Returns:
+            A deque of the optimal route, or `None` if there is no route.
+        """
         collision_node = self._find_route(from_, to)
         if not collision_node:
             return
@@ -60,7 +67,20 @@ class ShortestRouteDirectedGraph:
         return route
 
     def _find_route(self, from_: Vertex, to: Vertex) -> Optional[Vertex]:
-        """TODO"""
+        """Finds the collision node of two breadth first searches performed on a
+         copy of the graph and on a reversed copy.
+
+        The discovery time of each vertex is stored to help determine the shortest
+         route.
+
+        Args:
+            from_: The vertex at the start of the route.
+            to: The vertex at the end of the route.
+
+        Returns:
+            The vertex where the two BFS meet, else None.
+
+        """
         self._for_graph = copy.deepcopy(self.graph)
         self._rev_graph = self._reverse_copy()
         from_queue, to_queue = deque(), deque()
@@ -78,7 +98,18 @@ class ShortestRouteDirectedGraph:
             disc_time += 1
 
     def _visit(self, vertex: Vertex, colour: str) -> Optional[Vertex]:
-        """TODO"""
+        """Visits the provided ``vertex`` and marks it's discovery by this particular
+         BFS in the vertex's `colour` attribute. If the ``vertex`` has already been
+         discovered by another BFS then it is returned as the collision node.
+
+        Args:
+            vertex: The vertex to visit.
+            colour: The colour pertaining to a particular BFS
+
+        Returns:
+            The vertex where the two BFS collide, else None.
+
+        """
         if vertex.colour == "white":
             vertex.colour = colour
         elif vertex.predecessor and vertex.colour != vertex.predecessor.colour:
@@ -87,10 +118,19 @@ class ShortestRouteDirectedGraph:
     def _enqueue_neighbours(
         self, vertex: Vertex, queue: deque, disc_time: int, colour: str
     ) -> None:
-        """TODO"""
+        """Enqueues all neighbours of ``vertex`` to the end of the provided BFS
+         ``queue``. Discovery time (round of BFS) and colour (particular BFS
+         instance) are stored in the respective ``vertex`` attributes.
+
+        Args:
+            vertex: The ``vertex`` whose neighbours shall be enqueued.
+            queue: The deque of the BFS to add neighbours to.
+            disc_time: The discovery time of this vertex's neighbours. This increments
+                 on each round of the BFS.
+            colour: The colour pertaining to a particular BFS instance.
+        """
         for neighbour_v in vertex.get_connections():
             if neighbour_v.colour != colour:
-                # TODO: Change colour here (?), otherwise discovery can be overwritten.
                 if neighbour_v.colour == "white":
                     self._for_graph.get_vertex(neighbour_v.key).set_discovery(disc_time)
                     self._rev_graph.get_vertex(neighbour_v.key).set_discovery(disc_time)
@@ -111,23 +151,23 @@ class ShortestRouteDirectedGraph:
         return reversed_graph
 
 
-g = Graph()
-for i in range(1, 11):
-    g.add_vertex(i)
-
-g.add_edge(1, 2)
-g.add_edge(2, 3)
-g.add_edge(3, 4)
-g.add_edge(3, 5)
-g.add_edge(5, 6)
-g.add_edge(6, 7)
-g.add_edge(6, 9)
-g.add_edge(7, 8)
-g.add_edge(7, 9)
-g.add_edge(9, 10)
-
-
-s = ShortestRouteDirectedGraph(g)
-route = s.route(g.get_vertex(1), g.get_vertex(8))
-print(route)
-print(list(map(lambda x: x.key, route)))
+# g = Graph()
+# for i in range(1, 11):
+#     g.add_vertex(i)
+#
+# g.add_edge(1, 2)
+# g.add_edge(2, 3)
+# g.add_edge(3, 4)
+# g.add_edge(3, 5)
+# g.add_edge(5, 6)
+# g.add_edge(6, 7)
+# g.add_edge(6, 9)
+# g.add_edge(7, 8)
+# g.add_edge(7, 9)
+# g.add_edge(9, 10)
+#
+#
+# s = ShortestRouteDirectedGraph(g)
+# route = s.route(g.get_vertex(1), g.get_vertex(10))
+# print(route)
+# print(list(map(lambda x: x.key, route)))  # [1, 2, 3, 5, 6, 9, 10]
