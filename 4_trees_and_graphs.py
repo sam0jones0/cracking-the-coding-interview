@@ -116,7 +116,7 @@ class ShortestRouteDirectedGraph:
             return vertex
 
     def _enqueue_neighbours(
-            self, vertex: Vertex, queue: deque, disc_time: int, colour: str
+        self, vertex: Vertex, queue: deque, disc_time: int, colour: str
     ) -> None:
         """Enqueues all neighbours of ``vertex`` to the end of the provided BFS
          ``queue``. Discovery time (round of BFS) and colour (particular BFS
@@ -150,6 +150,7 @@ class ShortestRouteDirectedGraph:
 
         return reversed_graph
 
+
 # g = Graph()
 # for i in range(1, 11):
 #     g.add_vertex(i)
@@ -180,57 +181,99 @@ from BinarySearchTree import BinarySearchTree, TreeNode
 
 
 def build_min_bst(lst: list) -> BinarySearchTree:
-    """TODO"""
-    mid = lst[(len(lst) // 2)]
+    """Creates and returns a binary search tree of minimal height when provided
+    a sorted (asc) array of unique integers.
+    """
     bst = BinarySearchTree()
-    # bst.root = _build_min_bst_helper(lst[:mid], lst[mid + 1 :], mid)
-    bst.root = _build_min_bst_helper(lst, mid)
+    bst.root = _build_min_bst_helper(lst, 0, len(lst))
 
     return bst
 
 
-def _build_min_bst_helper(lst, mid):
+def _build_min_bst_helper(lst, start, end):
+    mid = start + ((end - start) // 2)
     if mid == 0:
-        return TreeNode(lst[0])
-    elif mid == len(lst) - 1:
-        return TreeNode(lst[len(lst - 1)])
-
-    new_node = TreeNode(mid)
-    new_node.left_child = _build_min_bst_helper(lst, mid // 2)
-    new_node.right_child = _build_min_bst_helper(lst, mid + ((len(lst) - mid) // 2))
-
-    return new_node
+        return TreeNode(mid)
+    elif start != mid:
+        new_node = TreeNode(mid)
+        new_node.left_child = _build_min_bst_helper(lst, start, mid)
+        new_node.right_child = _build_min_bst_helper(lst, mid, end)
+        return new_node
 
 
-# def _build_min_bst_helper(left, right, mid):
-#     if mid:
-#         new_node = TreeNode(mid)
-#         l_mid = left[len(left) // 2]
-#         r_mid = right[len(right) // 2]
-#         new_node.left_child = _build_min_bst_helper(
-#             left[:l_mid], left[l_mid + 1:], l_mid
-#         )
-#         new_node.right_child = _build_min_bst_helper(
-#             right[:r_mid], right[r_mid + 1:], r_mid
-#         )
-#
-#         return new_node
+# a_list = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+# build_min_bst(b)
 
 
-# def _build_min_bst_helper(lst: list, node: TreeNode):
-#     mid = lst[(len(lst) // 2)]
-#
-#     if mid is not None:
-#         left = lst[:mid]
-#         right = lst[mid + 1:]
-#         node.left_child = _build_min_bst_helper(left, TreeNode)
-#         node.right_child = TreeNode()
-#         return mid
+# ----
+# 3. List of Depths: Given a binary tree, design an algorithm which creates a
+#  linked list of all the nodes at each depth (e.g., if you have a tree with
+#  depth 0, you'll have 0 linked lists).
 
-a = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
-b = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-c = [0]
+import random
+from collections import deque
+from typing import List, Optional
 
-build_min_bst(a)
-build_min_bst(b)
-build_min_bst(c)
+from BinarySearchTree import BinarySearchTree, TreeNode
+
+
+# tree = BinarySearchTree()
+# for _ in range(10):
+#     tree.put(random.randint(0, 100), None)
+
+
+def list_of_depths(bst: BinarySearchTree) -> List[Optional[List]]:
+    """Constructs a list of sublists containing the keys for nodes on each level
+     of a binary search tree.
+
+    Each sublist contains the keys for nodes found on that level.
+
+    Args:
+        bst: A binary search tree.
+    """
+    n_list = bst_bfs(bst.root)
+    res = [[n_list[0]]] if n_list else []
+    idx, level, found = 1, 1, 0
+    while idx < len(n_list):
+        res.append([])
+        this_row_n = found * 2 or 2  # First loop found will be 0 as root already added.
+        found = 0
+        for _ in range(this_row_n):
+            item = n_list[idx]
+            if item is not None:
+                res[level].append(item)
+                found += 1
+            idx += 1
+        level += 1
+    res.pop()
+
+    return res
+
+
+def bst_bfs(root: TreeNode) -> List[Optional[int]]:
+    """Runs a breadth first search on a binary search tree, appending `None` to
+     note a missing child of a previously discovered node.
+
+    Args:
+        root: The root of a binary search tree to start the search.
+
+    Returns:
+        A list of node keys in their discovery order.
+     """
+    result = []
+    q = deque()
+    q.append(root)
+    while q:
+        node: TreeNode = q.popleft()
+        if node:
+            left, right = node.left_child, node.right_child
+            q.append(left)
+            q.append(right)
+            result.append(node.key)
+        else:
+            result.append(node)
+
+    return result
+
+
+# print(list_of_depths(tree))
