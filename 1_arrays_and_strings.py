@@ -1,10 +1,10 @@
 # 1. Implement an algorithm to determine if a string has all unique characters.
-#   What if you cannot use additional data structures?
+# What if you cannot use additional data structures?
 
 # BCR: O(n): Have to check each character.
 
 # With data structures:
-#   Place each char in s into a set. Return len(set) == len(s)
+# Place each char in s into a set. Return len(set) == len(s)
 
 from typing import List
 

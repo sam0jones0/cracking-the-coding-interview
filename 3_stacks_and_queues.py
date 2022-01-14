@@ -8,7 +8,7 @@ class TripleStackList:
     """Three stacks implemented using a single list.
 
     Methods for pushing, popping and checking if a stack is empty are provided.
-     Methods for each stack can be accessed using its ID (0, 1 or 2).
+    Methods for each stack can be accessed using its ID (0, 1 or 2).
 
     Attributes:
         _data: The stored data for all three stacks.
@@ -96,7 +96,7 @@ class StackMin:
     """A stack data structure with a min function.
 
     Uses lists for internal representation of the stack. In addition to push,
-     pop and min are provided with O(1) time complexity.
+    pop and min are provided with O(1) time complexity.
 
     Attributes:
         _data: The data stored within the stack.
@@ -203,7 +203,7 @@ class SetOfStacks:
         """Pops the top item from the stack.
 
         Cleans up any empty stacks before popping, unless only one inner stack
-         remains.
+        remains.
         """
         while not (self.stacks[-1] or len(self.stacks) == 1):
             self.stacks.pop()
@@ -214,7 +214,7 @@ class SetOfStacks:
         """Pops an item from the inner stack at the provided index ``idx``.
 
         Should this lead to an empty inner stack, it will be cleaned/removed when
-         reached by `self.pop()`.
+        reached by `self.pop()`.
 
         Attributes:
             idx: The index of the inner stack to pop from.
@@ -246,9 +246,9 @@ class MyQueue1:
     Attributes:
         _stack_1: A stack in old -> new order to which new items are added.
         _stack_2: A stack to hold the reversed _stack_1. Items in new -> old order
-             from which items are popped.
+            from which items are popped.
         _enqueued_last: A toggle flag denoting if an item was enqueued more recently
-             than dequeued.
+            than dequeued.
     """
 
     _stack_1: List[Any]
@@ -285,14 +285,14 @@ class MyQueue1:
 
     def _reverse(self, from_: list, to: list) -> None:
         """Reverses the items in internal stacks so items can be added to the correct
-         end of the queue.
+        end of the queue.
 
         Args:
             from_: The stack which to be reversed.
             to: The stack to place the reversed items.
         """
-        # FIXME: After reading solution; reverse in order to enqueue can be avoided
-        #  by only populating the 'oldest' stack_2 when dequeuing (see MyQueue2 below).
+        # After reading solution; reverse in order to enqueue can be avoided
+        # by only populating the 'oldest' stack_2 when dequeuing (see MyQueue2 below).
         if self._stack_1 or self._stack_2:
             to.clear()
             while from_:
@@ -334,7 +334,7 @@ class MyQueue2:
         """Dequeues and returns an item from the front of the queue.
 
         If _old_top if empty, items must be popped from _new_top and pushed to
-         _old_top (in effect reversing _new_top).
+        _old_top (in effect reversing _new_top).
         """
         if not self._old_top:
             self._reverse()
@@ -375,10 +375,10 @@ import operator
 
 def sort_stack(stack: list, reverse: bool = False) -> list:
     """Sorts ``stack`` so the smallest items are on top only using an additional
-     temporary stack.
+    temporary stack.
 
-     Recursive calls are made on each partially sorted stack until no further
-      swaps are made.
+    Recursive calls are made on each partially sorted stack until no further
+    swaps are made.
 
     Args:
         stack: The stack to sort.
@@ -409,10 +409,10 @@ def sort_stack(stack: list, reverse: bool = False) -> list:
 
 def sort_stack_2(stack: list) -> list:
     """Sorts ``stack`` so the smallest items are on top only using an additional
-      temporary stack.
+    temporary stack.
 
-     Marginally faster than `sort_stack` as in certain conditions the whole stack
-      does not need to be traversed.
+    Marginally faster than `sort_stack` as in certain conditions the whole stack
+    does not need to be traversed.
 
     Args:
         stack: The stack to sort.

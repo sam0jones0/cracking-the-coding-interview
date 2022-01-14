@@ -14,12 +14,12 @@ class ShortestRouteDirectedGraph:
     route between them.
 
     Two copies are made of the provided graph, one with the edge's directions
-     reversed. A BFS is performed starting at the `from_` and `to` vertices on
-     the forward and reversed graphs respectively. The discovery of a node by a
-     particular BFS is stored in the `vertex.colour` attribute (e.g. "red" or
-     "black") which is initialised to "white", i.e. undiscovered. The discovery
-     time of each vertex is stored in `vertex.disc`. Once a collision vertex is
-     discovered a route has been found and the shortest route can be calculated.
+    reversed. A BFS is performed starting at the `from_` and `to` vertices on
+    the forward and reversed graphs respectively. The discovery of a node by a
+    particular BFS is stored in the `vertex.colour` attribute (e.g. "red" or
+    "black") which is initialised to "white", i.e. undiscovered. The discovery
+    time of each vertex is stored in `vertex.disc`. Once a collision vertex is
+    discovered a route has been found and the shortest route can be calculated.
 
     Attributes:
         _for_graph: A deepcopy of the provided ``graph``.
@@ -68,10 +68,10 @@ class ShortestRouteDirectedGraph:
 
     def _find_route(self, from_: Vertex, to: Vertex) -> Optional[Vertex]:
         """Finds the collision node of two breadth first searches performed on a
-         copy of the graph and on a reversed copy.
+        copy of the graph and on a reversed copy.
 
         The discovery time of each vertex is stored to help determine the shortest
-         route.
+        route.
 
         Args:
             from_: The vertex at the start of the route.
@@ -119,14 +119,14 @@ class ShortestRouteDirectedGraph:
         self, vertex: Vertex, queue: deque, disc_time: int, colour: str
     ) -> None:
         """Enqueues all neighbours of ``vertex`` to the end of the provided BFS
-         ``queue``. Discovery time (round of BFS) and colour (particular BFS
-         instance) are stored in the respective ``vertex`` attributes.
+        ``queue``. Discovery time (round of BFS) and colour (particular BFS
+        instance) are stored in the respective ``vertex`` attributes.
 
         Args:
             vertex: The ``vertex`` whose neighbours shall be enqueued.
             queue: The deque of the BFS to add neighbours to.
             disc_time: The discovery time of this vertex's neighbours. This increments
-                 on each round of the BFS.
+                on each round of the BFS.
             colour: The colour pertaining to a particular BFS instance.
         """
         for neighbour_v in vertex.get_connections():
@@ -207,8 +207,8 @@ def _build_min_bst_helper(lst, start, end):
 
 # ----
 # 3. List of Depths: Given a binary tree, design an algorithm which creates a
-#  linked list of all the nodes at each depth (e.g., if you have a tree with
-#  depth 0, you'll have 0 linked lists).
+# linked list of all the nodes at each depth (e.g., if you have a tree with
+# depth 0, you'll have 0 linked lists).
 
 import random
 from collections import deque
@@ -224,7 +224,7 @@ from BinarySearchTree import BinarySearchTree, TreeNode
 
 def list_of_depths(bst: BinarySearchTree) -> List[Optional[List]]:
     """Constructs a list of sublists containing the keys for nodes on each level
-     of a binary search tree.
+    of a binary search tree.
 
     Each sublist contains the keys for nodes found on that level.
 
@@ -252,14 +252,14 @@ def list_of_depths(bst: BinarySearchTree) -> List[Optional[List]]:
 
 def bst_bfs(root: TreeNode) -> List[Optional[int]]:
     """Runs a breadth first search on a binary search tree, appending `None` to
-     note a missing child of a previously discovered node.
+    note a missing child of a previously discovered node.
 
     Args:
         root: The root of a binary search tree to start the search.
 
     Returns:
-        A list of node keys in their discovery order.
-     """
+        A list of sublists of node keys grouped by level on a binary search tree.
+    """
     result = []
     q = deque()
     q.append(root)
@@ -277,3 +277,34 @@ def bst_bfs(root: TreeNode) -> List[Optional[int]]:
 
 
 # print(list_of_depths(tree))
+
+
+# After reading the (much simpler) answer I implemented the solution in Python.
+
+
+def list_of_depths_2(
+    node: TreeNode, result: List[Optional[List]], level: int = 0
+) -> Optional[List[Optional[List]]]:
+    """Constructs a list of sublists containing the keys for nodes on each level
+    of a binary search tree using a pre-order search.
+
+    Args:
+        node: The root of a binary search tree to start the search.
+        result: A list to store the sublists.
+        level: The level of the binary tree we are currently on.
+
+    Returns:
+        A list of sublists of node keys grouped by level on a binary search tree.
+    """
+    if node is None:
+        return result
+    if level > len(result) - 1:
+        result.append([])
+    result[level].append(node.key)
+    list_of_depths_2(node.left_child, result, level + 1)
+    list_of_depths_2(node.right_child, result, level + 1)
+
+    return result
+
+
+# print(list_of_depths_2(tree.root, []))

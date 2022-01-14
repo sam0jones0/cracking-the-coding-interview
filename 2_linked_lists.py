@@ -233,7 +233,7 @@ def is_palindrome_2(ll: LinkedList) -> bool:
     """Checks if the items in a linked list form a palindrome.
 
     Similar to the above, but avoids the unnecessary check performed on each iteration
-     to see if we are currently checking the middle node of a list of odd length.
+    to see if we are currently checking the middle node of a list of odd length.
     """
     from queue import LifoQueue
 
@@ -301,10 +301,10 @@ def intersection_o1_space(ll_1: LinkedList, ll_2: LinkedList) -> Optional[LlNode
 
 # ----
 # 8. Loop Detection: Given a circular linked list, implement an algorithm that returns
-#  the node at the beginning of the loop.
+# the node at the beginning of the loop.
 # DEFINITION
 # Circular linked list: A (corrupt) linked list in which a node's next pointer
-#  points to an earlier node, so as to make a loop in the linked list.
+# points to an earlier node, so as to make a loop in the linked list.
 # EXAMPLE
 # Input: A -> B -> C -> D -> E -> C [the same C as earlier]
 # Output: C
