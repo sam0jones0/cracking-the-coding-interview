@@ -308,3 +308,73 @@ def list_of_depths_2(
 
 
 # print(list_of_depths_2(tree.root, []))
+
+
+# ----
+# 4. Check Balanced: Implement a function to check if a binary tree is balanced.
+# For the purposes of this question, a balanced tree is defined to be a tree
+# such that the heights of the two subtrees of any node never differ by more
+# than one.
+
+import random
+from typing import Optional
+
+from BinarySearchTree import BinarySearchTree, TreeNode
+
+
+def is_balanced(root: TreeNode, max_imbalance: int = 1) -> bool:
+    """Checks if a binary tree is balanced up to a provided ``max_imbalance``
+    factor.
+
+    Args:
+        root: The root of a binary search tree.
+        max_imbalance: The maximum amount the height of any two subtrees can
+            differ.
+
+    Returns:
+        True if the tree is balanced, False otherwise.
+
+    """
+    return _is_balanced_helper(root, max_im=max_imbalance) >= 0
+
+
+def _is_balanced_helper(
+    root: TreeNode, max_im: int = 1, level: int = 0, leaf_lvl: Optional[int] = None
+) -> int:
+    if root is None:
+        return leaf_lvl
+
+    if not (root.left_child and root.right_child):  # 0 or 1 children (leaf node).
+        if leaf_lvl is None:
+            leaf_lvl = level + max_im
+        elif not (0 <= abs(level - leaf_lvl) <= max_im):
+            # Found leaf with height difference from another leaf of more than max_im.
+            return -1
+
+    if leaf_lvl and level > leaf_lvl:
+        return -1  # Found imbalance.
+    else:
+        leaf_lvl = _is_balanced_helper(root.left_child, max_im, level + 1, leaf_lvl)
+        leaf_lvl = _is_balanced_helper(root.right_child, max_im, level + 1, leaf_lvl)
+
+    return leaf_lvl
+
+
+# def gen_tree(n):
+#     tree = BinarySearchTree()
+#     for _ in range(n):
+#         tree.put(random.randint(0, 101), None)
+#     return tree
+#
+#
+# tree = gen_tree(20)
+# i = 1
+# while not is_balanced(tree.root):
+#     tree = gen_tree(20)
+#     i += 1
+#
+# tree.root.display()
+# print(f"Took {i} attempts")
+
+
+# ----
