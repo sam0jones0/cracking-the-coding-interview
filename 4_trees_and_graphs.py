@@ -378,3 +378,51 @@ def _is_balanced_helper(
 
 
 # ----
+# 5. Validate BST: Implement a function to check if a binary tree is a binary
+# search tree.
+
+import sys
+
+from BinarySearchTree import TreeNode
+
+
+def validate_bst(root: TreeNode) -> bool:
+    """Validates that a binary tree is a binary search tree.
+
+    In-order traversal is used to check each node is bigger than the last
+    visited. Assumes all node keys are positive integers.
+
+    Args:
+        root: The root node of the binary tree to validate.
+
+    Returns:
+        `True` if ``root`` is a binary search tree, `False` otherwise.
+    """
+    return not _validate_bst_helper(root, -1) == sys.maxsize
+
+
+def _validate_bst_helper(root: TreeNode, current: int = -1) -> int:
+    if root is not None and current != sys.maxsize:
+        current = _validate_bst_helper(root.left_child, current)
+        current = root.key if root.key >= current else sys.maxsize
+        current = _validate_bst_helper(root.right_child, current)
+
+    return current
+
+
+# 1st attempt below. It works but uses unnecessary additional space.
+
+# def _validate_bst_helper(root: TreeNode, res: Optional[List] = None) -> List:
+#     if root is not None and (res or [-1])[-1] != sys.maxsize:
+#         _validate_bst_helper(root.left_child, res)
+#         if root.key >= (res or [-1])[-1]:
+#             res.append(root.key)
+#         else:
+#             res.append(sys.maxsize)
+#             return res
+#         _validate_bst_helper(root.right_child, res)
+#
+#     return res
+
+
+# print(validate_bst(bst.root))
