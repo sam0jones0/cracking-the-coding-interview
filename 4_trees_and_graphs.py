@@ -426,3 +426,57 @@ def _validate_bst_helper(root: TreeNode, current: int = -1) -> int:
 
 
 # print(validate_bst(bst.root))
+
+
+# Official solution implemented in Python:
+
+
+# def validate_bst(root: TreeNode) -> bool:
+#     return _v_bst_aux(root)
+#
+#
+# def _v_bst_aux(root: TreeNode, min_: int = None, max_: int = None) -> bool:
+#     if root is None:
+#         return True
+#
+#     if (min_ and root.key <= min_) or (max_ and root.key > max_):
+#         return False
+#
+#     if not _v_bst_aux(root.left_child, min_, root.key) or not _v_bst_aux(
+#         root.right_child, root.key, max_
+#     ):
+#         return False
+#
+#     return True
+
+
+# ----
+# # 6. Successor: Write an algorithm to find the "next" node (i.e., in-order successor) of a given node in a
+# # binary search tree. You may assume that each node has a link to its parent
+
+from BinarySearchTree import BinarySearchTree, TreeNode
+
+from typing import Optional
+
+
+def successor(node: TreeNode) -> Optional[TreeNode]:
+    """Returns the 'next' node (in-order successor) of a given ``node``.
+
+    Requires each node in the tree to have a link to its parent.
+
+    Args:
+        node: The binary `TreeNode` to find the successor of.
+
+    Returns:
+        A binary `TreeNode` if a successor is found, else `None`.
+    """
+    if node.right_child:
+        node = node.right_child
+        while node.left_child:
+            node = node.left_child
+    else:
+        while node.parent and node.parent.key < node.key:
+            node = node.parent
+        node = node.parent
+
+    return node
