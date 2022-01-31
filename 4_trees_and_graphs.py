@@ -451,8 +451,8 @@ def _validate_bst_helper(root: TreeNode, current: int = -1) -> int:
 
 
 # ----
-# # 6. Successor: Write an algorithm to find the "next" node (i.e., in-order successor) of a given node in a
-# # binary search tree. You may assume that each node has a link to its parent
+# 6. Successor: Write an algorithm to find the "next" node (i.e., in-order successor) of a given node in a
+# binary search tree. You may assume that each node has a link to its parent
 
 from BinarySearchTree import BinarySearchTree, TreeNode
 
@@ -480,3 +480,114 @@ def successor(node: TreeNode) -> Optional[TreeNode]:
         node = node.parent
 
     return node
+
+
+# ----
+# 7. Build Order: You are given a list of projects and a list of dependencies
+# (which is a list of pairs of projects, where the second project is dependent
+# on the first project). All of a project's dependencies must be built before
+# the project is. Find a build order that will allow the projects to be built.
+# If there is no valid build order, return an error.
+#
+# EXAMPLE
+# Input:
+#   projects: a, b, c, d, e, f
+#   dependencies: (a, d), (f, b), (b, d), (f, a), (d, c)
+# Output:
+#   f, e, a, b, d, c
+
+from typing import List, Tuple
+
+from AdjacencyListGraph import Graph, Vertex
+
+
+class BuildOrder:
+    """Provided a list of projects and dependencies, this class's `build` method
+    will provide an order to complete the projects in such that all of a projects
+    dependencies are built before the project is. If no such order exists, an error
+    is raised.
+
+    Attributes:
+        time: Tracks the time a graph node is completely explored. Used to construct
+            the final order.
+    """
+
+    time: int
+
+    def __init__(self):
+        self.time = 0
+
+    def build(self, projects: List[str], deps: List[Tuple[str, str]]) -> List[str]:
+        """Computes a valid build order with the provided projects and dependencies.
+
+        A directed adjacency list graph is constructed with a node for each project,
+        and edges pointing from the requisite node to the dependant node. A depth
+        first search marks the finish time of each node once all of its dependants
+        have been visited. A topological sort on ``node.fin`` provides the build order.
+
+        Args:
+            projects: A list of project names to be included in the build order.
+            deps: A list of pairs of project names, where the second project must
+                be built before the first project is.
+
+        Returns:
+            A list of project names in the proposed completion order.
+        """
+        g = Graph()
+        for project in projects:
+            g.add_vertex(project)
+        for dep in deps:
+            g.add_edge(dep[0], dep[1])
+        self.time = 0
+
+        vert: Vertex
+        for vert in g:
+            if vert.colour == "white":
+                self._dfs_visit_vert(vert)
+        vert_list = list(g.vert_list.values())
+        vert_list.sort(key=lambda x: x.fin, reverse=True)  # Topological sort.
+        order = [v.key for v in vert_list]
+        self._verify(order, deps)
+
+        return order
+
+    def _dfs_visit_vert(self, vert: Vertex) -> None:
+        """Performs a depth first search from the provided ``vert`` and marks
+        the finish time of each node.
+        """
+        self.time += 1
+        vert.set_colour("grey")
+        next_vert: Vertex
+        for next_vert in vert.get_connections():
+            if next_vert.colour == "white":
+                self._dfs_visit_vert(next_vert)
+        vert.set_colour("black")
+        self.time += 1
+        vert.set_finish(self.time)
+
+    @staticmethod
+    def _verify(order: List[str], deps: List[Tuple[str, str]]) -> None:
+        """Verifies a proposed project order against provided dependencies.
+
+        Args:
+            order: The project build order to verify.
+            deps: The project's dependencies.
+
+        Raises:
+            `RuntimeError` if no valid order if found.
+        """
+        idx_dict = {p: i for i, p in enumerate(order)}
+        for dep in deps:
+            if idx_dict[dep[0]] > idx_dict[dep[1]]:
+                raise RuntimeError("No valid order.")
+
+
+# projects = ["a", "b", "c", "d", "e", "f"]
+# dependencies = [("a", "d"), ("f", "b"), ("b", "d"), ("f", "a"), ("d", "c")]
+#
+# build_order = BuildOrder().build(projects, dependencies)
+# print(build_order)
+
+
+# ----
+#
