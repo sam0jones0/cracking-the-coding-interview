@@ -496,97 +496,64 @@ def successor(node: TreeNode) -> Optional[TreeNode]:
 # Output:
 #   f, e, a, b, d, c
 
+from collections import deque
 from typing import List, Tuple
 
 from AdjacencyListGraph import Graph, Vertex
 
 
-class BuildOrder:
-    """Provided a list of projects and dependencies, this class's `build` method
-    will provide an order to complete the projects in such that all of a projects
-    dependencies are built before the project is. If no such order exists, an error
-    is raised.
+def build_order(projects: List[str], deps: List[Tuple[str, str]]) -> deque:
+    """Computes a valid build order for the provided projects and dependencies
+    such that all of a project's dependencies are built before the project is.
+    If no such order exists, an error is raised.
 
-    Attributes:
-        time: Tracks the time a graph node is completely explored. Used to construct
-            the final order.
+    A directed adjacency list graph is constructed with a node for each project,
+    and edges pointing from the requisite node to the dependant node. A depth
+    first search left-appends each node to a deque once all of its dependants
+    have been visited. Resulting in a topological sort.
+
+    Args:
+        projects: A list of project names to be included in the build order.
+        deps: A list of pairs of project names, where the second project must
+            be built before the first project is.
+
+    Returns:
+        A deque of project names in the proposed build order.
     """
+    g = Graph()
+    for project in projects:
+        g.add_vertex(project)
+    for dep in deps:
+        g.add_edge(dep[0], dep[1])
 
-    time: int
+    queue = deque()
+    vert: Vertex
+    for vert in g:
+        if vert.colour == "white":
+            _dfs_visit_vert(vert, queue)
 
-    def __init__(self):
-        self.time = 0
+    return queue
 
-    def build(self, projects: List[str], deps: List[Tuple[str, str]]) -> List[str]:
-        """Computes a valid build order with the provided projects and dependencies.
 
-        A directed adjacency list graph is constructed with a node for each project,
-        and edges pointing from the requisite node to the dependant node. A depth
-        first search marks the finish time of each node once all of its dependants
-        have been visited. A topological sort on ``node.fin`` provides the build order.
-
-        Args:
-            projects: A list of project names to be included in the build order.
-            deps: A list of pairs of project names, where the second project must
-                be built before the first project is.
-
-        Returns:
-            A list of project names in the proposed completion order.
-        """
-        g = Graph()
-        for project in projects:
-            g.add_vertex(project)
-        for dep in deps:
-            g.add_edge(dep[0], dep[1])
-        self.time = 0
-
-        vert: Vertex
-        for vert in g:
-            if vert.colour == "white":
-                self._dfs_visit_vert(vert)
-        vert_list = list(g.vert_list.values())
-        vert_list.sort(key=lambda x: x.fin, reverse=True)  # Topological sort.
-        order = [v.key for v in vert_list]
-        self._verify(order, deps)
-
-        return order
-
-    def _dfs_visit_vert(self, vert: Vertex) -> None:
-        """Performs a depth first search from the provided ``vert`` and marks
-        the finish time of each node.
-        """
-        self.time += 1
-        vert.set_colour("grey")
-        next_vert: Vertex
-        for next_vert in vert.get_connections():
-            if next_vert.colour == "white":
-                self._dfs_visit_vert(next_vert)
-        vert.set_colour("black")
-        self.time += 1
-        vert.set_finish(self.time)
-
-    @staticmethod
-    def _verify(order: List[str], deps: List[Tuple[str, str]]) -> None:
-        """Verifies a proposed project order against provided dependencies.
-
-        Args:
-            order: The project build order to verify.
-            deps: The project's dependencies.
-
-        Raises:
-            `RuntimeError` if no valid order if found.
-        """
-        idx_dict = {p: i for i, p in enumerate(order)}
-        for dep in deps:
-            if idx_dict[dep[0]] > idx_dict[dep[1]]:
-                raise RuntimeError("No valid order.")
+def _dfs_visit_vert(vert: Vertex, queue: deque) -> None:
+    """Performs a depth first search from the provided ``vert`` and appends each
+    node to the left of a deque on completing that branch.
+    """
+    vert.set_colour("grey")
+    next_vert: Vertex
+    for next_vert in vert.get_connections():
+        if next_vert.colour == "white":
+            _dfs_visit_vert(next_vert, queue)
+        elif next_vert.colour == "grey":
+            raise RuntimeError("Detected a loop: No valid order.")
+    vert.set_colour("black")
+    queue.appendleft(vert.key)
 
 
 # projects = ["a", "b", "c", "d", "e", "f"]
 # dependencies = [("a", "d"), ("f", "b"), ("b", "d"), ("f", "a"), ("d", "c")]
 #
-# build_order = BuildOrder().build(projects, dependencies)
-# print(build_order)
+# print(build_order(projects, dependencies))
 
 
 # ----
