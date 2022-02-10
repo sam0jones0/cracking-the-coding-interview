@@ -557,4 +557,156 @@ def _dfs_visit_vert(vert: Vertex, queue: deque) -> None:
 
 
 # ----
+# 8. First Common Ancestor: Design an algorithm and write code to find the first common ancestor
+# of two nodes in a binary tree. Avoid storing additional nodes in a data structure. NOTE: This is not
+# necessarily a binary search tree.
+
+
+from typing import Optional
+
+from BinarySearchTree import BinarySearchTree, TreeNode
+
+
+def first_common_ancestor(first: TreeNode, second: TreeNode) -> Optional[TreeNode]:
+    """Returns the first common ancestor of the two provided nodes ``first`` and ``second``.
+
+    First checks if one node is a direct descendant of the other before calling
+    the _fca_aux recursive function to search the entire tree.
+
+    Args:
+        first: The first of the two nodes to find the fca of.
+        second: The second of the two nodes.
+
+    Returns:
+        The `TreeNode` that is the first common ancestor of the two nodes, else `None`
+        if there is no common ancestor (i.e. the two nodes are not in the same tree).
+    """
+    n_1, n_2 = first, second
+    while n_1 is not None:
+        if n_1.key == second.key:
+            return n_1
+        n_1 = n_1.parent
+    while n_2 is not None:
+        if n_2.key == first.key:
+            return n_2
+        n_2 = n_2.parent
+
+    return _fca_aux(first, None, second)
+
+
+def _fca_aux(
+    curr: TreeNode, end: Optional[TreeNode], other: TreeNode
+) -> Optional[TreeNode]:
+    """Finds the first common ancestor of two binary tree nodes: ``curr` and ``other``.
+
+    Checks the subtree of ``curr` for the other node ``other``, returning the
+    topmost node if found. Otherwise, moves to `curr.parent` and marks the already
+    searched subtree as ``end`` so as not to re-check it and repeats the process
+    on the other subtree.
+
+    If the other node is found `end.parent` will be the
+    first common ancestor.
+
+    Args:
+        curr: The current node being searched (initialised to one of the two nodes).
+        end: The topmost node of an already searched subtree.
+        other: The other of the two nodes to find the fca of.
+
+    Returns:
+        The `TreeNode` that is the first common ancestor of the two nodes, else `None`
+        if there is no common ancestor (i.e. the two nodes are not in the same tree).
+    """
+    if curr is None or curr == end:
+        # Stop at the bottom of a tree or do not search already explored subtrees.
+        return
+    elif curr.key == other.key:
+        return end.parent
+
+    res = _fca_aux(curr.left_child, end, other) or _fca_aux(
+        curr.right_child, end, other
+    )
+    if res:
+        return res
+    elif end is None or curr == end.parent:
+        return _fca_aux(curr.parent, curr, other)
+
+
+def gen_tree(first, second):
+    """Generates a binary tree while allowing two already instantiated nodes
+    provided to be inserted.
+    """
+    tree = BinarySearchTree()
+    keys = [5, 2, 8, 1, 3, 0, 4, 6, 9, 7, 10, 12, 13, 14, 15, 16, 17, 18, 666]
+    arg_keys = {first.key: first, second.key: second}
+    for key in keys:
+        if key in arg_keys:
+            tree.put(arg_keys[key])
+        else:
+            tree.put(key)
+
+    return tree
+
+
+# first = TreeNode(1)
+# second = TreeNode(15)
+# tree = gen_tree(first, second)
+# tree.root.display()
 #
+# print(first_common_ancestor(first, second))
+
+
+# An alternate solution, as proposed in the book. Implemented in Python.
+
+from dataclasses import dataclass
+from typing import Optional
+
+from BinarySearchTree import BinarySearchTree, TreeNode
+
+
+@dataclass
+class Result:
+    node: Optional[TreeNode]
+    is_ancestor: bool
+
+
+def common_ancestor(
+    root: TreeNode, first: TreeNode, second: TreeNode
+) -> Optional[TreeNode]:
+    res = common_ancestor_aux(root, first, second)
+    if res.is_ancestor:
+        return res.node
+    else:
+        return None
+
+
+def common_ancestor_aux(root: TreeNode, first: TreeNode, second: TreeNode) -> Result:
+    if root is None:
+        return Result(None, False)
+    if root == first and root == second:
+        return Result(root, True)
+
+    left = common_ancestor_aux(root.left_child, first, second)
+    if left.is_ancestor:  # Found common ancestor.
+        return left
+
+    right = common_ancestor_aux(root.right_child, first, second)
+    if right.is_ancestor:  # Found common ancestor.
+        return right
+
+    if left.node and right.node:
+        return Result(root, True)  # This is the common ancestor.
+    elif root == first or root == second:
+        # If we're currently at first or second, and we also found one of those
+        # nodes in a subtree, then this is truly an ancestor and the flag should
+        # be true.
+        return Result(root, bool(left.node or right.node))
+    else:
+        return Result(left.node or right.node, False)
+
+
+# first = TreeNode(2)
+# second = TreeNode(0)
+# tree = gen_tree(first, second)
+# tree.root.display()
+#
+# print(common_ancestor(tree.root, first, second))
