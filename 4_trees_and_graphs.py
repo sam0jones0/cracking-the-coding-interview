@@ -631,20 +631,20 @@ def _fca_aux(
         return _fca_aux(curr.parent, curr, other)
 
 
-def gen_tree(first, second):
-    """Generates a binary tree while allowing two already instantiated nodes
-    provided to be inserted.
-    """
-    tree = BinarySearchTree()
-    keys = [5, 2, 8, 1, 3, 0, 4, 6, 9, 7, 10, 12, 13, 14, 15, 16, 17, 18, 666]
-    arg_keys = {first.key: first, second.key: second}
-    for key in keys:
-        if key in arg_keys:
-            tree.put(arg_keys[key])
-        else:
-            tree.put(key)
-
-    return tree
+# def gen_tree(first, second):
+#     """Generates a binary tree while allowing two already instantiated nodes
+#     provided to be inserted.
+#     """
+#     tree = BinarySearchTree()
+#     keys = [5, 2, 8, 1, 3, 0, 4, 6, 9, 7, 10, 12, 13, 14, 15, 16, 17, 18, 666]
+#     arg_keys = {first.key: first, second.key: second}
+#     for key in keys:
+#         if key in arg_keys:
+#             tree.put(arg_keys[key])
+#         else:
+#             tree.put(key)
+#
+#     return tree
 
 
 # first = TreeNode(1)
@@ -665,6 +665,14 @@ from BinarySearchTree import BinarySearchTree, TreeNode
 
 @dataclass
 class Result:
+    """Wrapper for the two return values used in the common_ancestor function.
+
+    Args:
+        node: The result node.
+        is_ancestor: Whether this node is actually a common ancestor (i.e. In
+            the case where only one of two nodes is present in the tree).
+    """
+
     node: Optional[TreeNode]
     is_ancestor: bool
 
@@ -710,3 +718,69 @@ def common_ancestor_aux(root: TreeNode, first: TreeNode, second: TreeNode) -> Re
 # tree.root.display()
 #
 # print(common_ancestor(tree.root, first, second))
+
+
+# ----
+# 9. BST Sequences: A binary search tree was created by traversing through an
+# array from left to right and inserting each element. Given a binary search
+# tree with distinct elements, print all possible arrays that could have led to
+# this tree.
+#
+# EXAMPLE
+# Input:
+#    2
+#   / \
+#   1 3
+#
+# Output: {2, 1, 3} , {2, 3, 1}
+
+from copy import copy
+from typing import List, Dict, Optional
+
+from BinarySearchTree import BinarySearchTree, TreeNode
+
+
+def bst_sequences(root: TreeNode) -> [List[List[int]]]:
+    """TODO"""
+    return _bst_sequences_aux(root, {root: root.key}, [], [])
+
+
+def _bst_sequences_aux(
+    root: TreeNode, options: Dict, result: List[int], results: List[List[int]]
+) -> Optional[List[List[int]]]:
+    """TODO"""
+    if root is None:
+        return
+
+    options.update({c: c.key for c in (root.left_child, root.right_child) if c})
+    result.append(options.pop(root))
+    for option in options:
+        _bst_sequences_aux(option, copy(options), result[:], results)
+    if not results or len(result) == len(results[0]):
+        results.append(result)
+
+    return results
+
+
+def gen_tree(array: List) -> BinarySearchTree:
+    """TODO"""
+    tree_ = BinarySearchTree()
+    for item in array:
+        tree_.put(item)
+    return tree_
+
+
+def verify(arrays: List[List[int]]) -> bool:
+    """TODO"""
+    tree_str = str(gen_tree(arrays[0]))
+    return all(str(gen_tree(t)) == tree_str for t in arrays)
+
+
+tree = gen_tree([2, 1, 0, 3, 5, 4, 6])
+seqs = bst_sequences(tree.root)
+verified_seqs = verify(seqs)
+print(tree, "\n")
+print(seqs, "\n")
+print(
+    f"Number of sequences: {len(seqs)}.\nAll arrays create same tree: {verified_seqs}."
+)
