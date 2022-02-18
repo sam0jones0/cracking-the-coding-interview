@@ -741,14 +741,41 @@ from BinarySearchTree import BinarySearchTree, TreeNode
 
 
 def bst_sequences(root: TreeNode) -> [List[List[int]]]:
-    """TODO"""
+    """Computes all possible arrays that create a Binary Search Tree identical
+    to the provided tree ``root`` when nodes are added left to right from each
+    array.
+
+    Args:
+        root: The BST root node to compute sequences of.
+
+    Returns:
+        A list of lists containing the `node.key`s required to create identical BSTs.
+    """
     return _bst_sequences_aux(root, {root: root.key}, [], [])
 
 
 def _bst_sequences_aux(
     root: TreeNode, options: Dict, result: List[int], results: List[List[int]]
 ) -> Optional[List[List[int]]]:
-    """TODO"""
+    """Recursively calculate all possible arrays which can be used to create BSTs
+    identical to the provided BST ``root`` node when each node is added to a BST
+    from left to right.
+
+    A dictionary of options for the next node is updated for each stack frame.
+    A dict is used for efficient access, insertion and deletion. We then recurse
+    for each option, creating branches where each option is added as the next
+    in the sequence. Only result lists with a length matching that of the number
+    of nodes in the tree are saved to the nested results list of lists.
+
+    Args:
+        root: The current BST node in the sequence.
+        options: A dictionary of possible choices for the next node in the sequence.
+        result: A list populated with the sequence currently being built.
+        results: A list of lists populated with valid sequences as they are completed.
+
+    Returns:
+        A list of lists containing the `node.key`s required to create identical BSTs.
+    """
     if root is None:
         return
 
@@ -757,13 +784,14 @@ def _bst_sequences_aux(
     for option in options:
         _bst_sequences_aux(option, copy(options), result[:], results)
     if not results or len(result) == len(results[0]):
+        # First item in results will always be of correct length.
         results.append(result)
 
     return results
 
 
 def gen_tree(array: List) -> BinarySearchTree:
-    """TODO"""
+    """Generates a Binary Search Tree using keys read from an array left to right."""
     tree_ = BinarySearchTree()
     for item in array:
         tree_.put(item)
@@ -771,12 +799,12 @@ def gen_tree(array: List) -> BinarySearchTree:
 
 
 def verify(arrays: List[List[int]]) -> bool:
-    """TODO"""
+    """Verifies each array in ``arrays`` creates an identical BST."""
     tree_str = str(gen_tree(arrays[0]))
     return all(str(gen_tree(t)) == tree_str for t in arrays)
 
 
-tree = gen_tree([2, 1, 0, 3, 5, 4, 6])
+tree = gen_tree([2, 1, 3, 0, 4])
 seqs = bst_sequences(tree.root)
 verified_seqs = verify(seqs)
 print(tree, "\n")
@@ -784,3 +812,14 @@ print(seqs, "\n")
 print(
     f"Number of sequences: {len(seqs)}.\nAll arrays create same tree: {verified_seqs}."
 )
+
+#   2
+#  / \
+#  1 3
+# /   \
+# 0   4
+#
+# [[2, 1, 3, 0, 4], [2, 1, 3, 4, 0], [2, 1, 0, 3, 4], [2, 3, 1, 4, 0], [2, 3, 1, 0, 4], [2, 3, 4, 1, 0]]
+#
+# Number of sequences: 6.
+# All arrays create same tree: True.
