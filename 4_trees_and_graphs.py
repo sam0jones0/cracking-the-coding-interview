@@ -823,3 +823,94 @@ print(
 #
 # Number of sequences: 6.
 # All arrays create same tree: True.
+
+
+# ----
+# 10. Check Subtree: Tl and T2 are two very large binary trees, with Tl much bigger than T2.
+# Create an algorithm to determine if T2 is a subtree of Tl.
+#
+# A tree T2 is a subtree of T1 if there exists a node n in T1 such that the subtree of n is
+# identical to T2. That is, if you cut off the tree at node n, the two trees would be identical.
+
+from itertools import zip_longest
+from typing import Iterator
+
+from BinarySearchTree import BinarySearchTree, TreeNode
+
+
+def check_subtree(tree: BinarySearchTree, subtree: BinarySearchTree) -> bool:
+    """Determines if `subtree` is a subtree of `tree`.
+
+    Args:
+        tree: The larger tree, which may contain `subtree`.
+        subtree: The subtree which may be contained in `tree`.
+
+    Returns:
+        ``True`` if `subtree` is a subtree of `tree`, ``False`` otherwise.
+
+    """
+    walk_big: Iterator[TreeNode] = walk_tree(tree.root)
+    small_root: TreeNode = subtree.root
+
+    big_n: TreeNode
+    for big_n in walk_big:
+        if big_n.key == small_root.key:
+            trees_identical: bool = trees_same(big_n, small_root)
+            if trees_identical:
+                return True
+
+    return False
+
+
+def trees_same(root_1: TreeNode, root_2: TreeNode) -> bool:
+    """Compares two trees and determines if they are identical.
+
+    Args:
+        root_1: The root of the first tree to compare.
+        root_2: The root of the second tree to compare.
+
+    Returns:
+        ``True`` if the two trees are identical, ``False`` otherwise.
+    """
+    big: TreeNode
+    small: TreeNode
+    for big, small in zip_longest(walk_tree(root_1), walk_tree(root_2)):
+        if not all((big, small)) or big.key != small.key:
+            return False
+
+    return True
+
+
+def walk_tree(root: TreeNode) -> Iterator[TreeNode]:
+    """Walks a tree in pre-order traversal.
+
+    Args:
+        root: The root node to start traversing from.
+
+    Yields:
+        The next `Treenode` in the pre-order traversal.
+    """
+    if root is not None:
+        yield root
+        yield from walk_tree(root.left_child)
+        yield from walk_tree(root.right_child)
+
+
+# def gen_tree(array: List) -> BinarySearchTree:
+#     """Generates a Binary Search Tree using keys read from an array left to right."""
+#     tree_ = BinarySearchTree()
+#     for item in array:
+#         tree_.put(item)
+#     return tree_
+#
+#
+# from random import randint
+#
+# while True:
+#     t_1 = gen_tree([randint(0, 20) for n in range(10)])
+#     t_2 = gen_tree([randint(0, 20) for n in range(4)])
+#     if check_subtree(t_1, t_2):
+#         print(t_1)
+#         print()
+#         print(t_2)
+#         break
