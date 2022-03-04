@@ -854,10 +854,11 @@ def check_subtree(tree: BinarySearchTree, subtree: BinarySearchTree) -> bool:
 
     big_n: TreeNode
     for big_n in walk_big:
-        if big_n.key == small_root.key:
-            trees_identical: bool = trees_same(big_n, small_root)
-            if trees_identical:
-                return True
+        if big_n is not None:
+            if big_n.key == small_root.key:
+                trees_identical: bool = trees_same(big_n, small_root)
+                if trees_identical:
+                    return True
 
     return False
 
@@ -874,24 +875,26 @@ def trees_same(root_1: TreeNode, root_2: TreeNode) -> bool:
     """
     big: TreeNode
     small: TreeNode
-    for big, small in zip_longest(walk_tree(root_1), walk_tree(root_2)):
-        if not all((big, small)) or big.key != small.key:
+    for nodes in zip_longest(walk_tree(root_1), walk_tree(root_2)):
+        if all(map(lambda x: x is None, nodes)):
+            pass
+        elif not all(nodes) or nodes[0].key != nodes[1].key:
             return False
 
     return True
 
 
 def walk_tree(root: TreeNode) -> Iterator[TreeNode]:
-    """Walks a tree in pre-order traversal.
+    """Walks a tree in pre-order traversal. Yielding `None` for nonexistent children.
 
     Args:
         root: The root node to start traversing from.
 
     Yields:
-        The next `Treenode` in the pre-order traversal.
+        The next `Treenode` in the pre-order traversal or `None` if there is no child node.
     """
+    yield root
     if root is not None:
-        yield root
         yield from walk_tree(root.left_child)
         yield from walk_tree(root.right_child)
 
