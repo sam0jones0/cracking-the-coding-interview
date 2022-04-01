@@ -917,3 +917,80 @@ def walk_tree(root: TreeNode) -> Iterator[TreeNode]:
 #         print()
 #         print(t_2)
 #         break
+
+
+# ----
+# 11. Random Node: You are implementing a binary tree class from scratch which, in
+# addition to insert, find, and delete, has a method getRandomNode() which returns a
+# random node from the tree. All nodes should be equally likely to be chosen. Design and
+# implement an algorithm for getRandomNode, and explain how you would implement the rest
+# of the methods.
+
+
+import random
+from collections import Counter
+from typing import Iterator, List
+
+from BinarySearchTree import BinarySearchTree, TreeNode
+
+
+class BSTRandom(BinarySearchTree):
+    def __init__(self) -> None:
+        super(BSTRandom, self).__init__()
+
+    def get_random_node(self) -> TreeNode:
+        count = self.size
+        for item in walk_tree(self.root):
+            if random.random() * count < 1:
+                return item
+            count -= 1
+
+
+def walk_tree(root: TreeNode) -> Iterator[TreeNode]:
+    """Walks a tree in pre-order traversal. Yielding `None` for nonexistent children.
+
+    Args:
+        root: The root node to start traversing from.
+
+    Yields:
+        The next `Treenode` in the pre-order traversal or `None` if there is no child node.
+    """
+    if root is not None:
+        yield root
+        yield from walk_tree(root.left_child)
+        yield from walk_tree(root.right_child)
+
+
+def gen_tree(array: List) -> BSTRandom:
+    """Generates a Binary Search Tree using keys read from an array left to right."""
+    tree_ = BSTRandom()
+    for item in array:
+        tree_.put(item)
+    return tree_
+
+
+t_1 = gen_tree([7, 5, 6, 8, 10, 9])
+
+print(t_1)
+
+#  _7
+# /  \
+# 5  8__
+#  \    \
+#  6   10
+#     /
+#     9
+
+c = Counter()
+for _ in range(600001):
+    c.update([t_1.get_random_node().key])
+
+print(c)
+# Counter({5: 100113, 8: 100095, 9: 100095, 7: 100095, 6: 99913, 10: 99690})
+
+
+# ----
+# 12. Paths with Sum: You are given a binary tree in which each node contains an integer value (which
+# might be positive or negative). Design an algorithm to count the number of paths that sum to a
+# given value. The path does not need to start or end at the root or a leaf, but it must go downwards
+# (traveling only from parent nodes to child nodes).
